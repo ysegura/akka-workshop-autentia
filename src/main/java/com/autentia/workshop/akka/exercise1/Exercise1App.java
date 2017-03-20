@@ -13,5 +13,7 @@ public class Exercise1App {
 		
 		final ActorRef actorRef = actorSystem.actorOf(Props.create(GreeterActor.class, greeterService), "GreeterActorName");
 		actorRef.tell("World", ActorRef.noSender());		
+		
+		actorSystem.terminate();
 	}
 }
