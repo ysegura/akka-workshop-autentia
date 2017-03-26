@@ -7,7 +7,11 @@ import akka.event.LoggingAdapter;
 public class SyncWorker extends UntypedActor {
 
 	private final LoggingAdapter log = Logging.getLogger(this);
-	private final Service service = new Service();
+	private final Service service;
+	
+	public SyncWorker(final Service service) {
+		this.service = service;
+	}
 
 	@Override
 	public void onReceive(Object msg) throws Throwable {

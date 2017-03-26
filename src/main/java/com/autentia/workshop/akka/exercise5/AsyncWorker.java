@@ -12,7 +12,11 @@ import akka.event.LoggingAdapter;
 public class AsyncWorker extends UntypedActor {
 	
 	private final LoggingAdapter log = Logging.getLogger(this);
-	private final Service service = new Service();
+	private final Service service;
+	
+	public AsyncWorker(final Service service) {
+		this.service = service;
+	}
 
 
 	@Override
