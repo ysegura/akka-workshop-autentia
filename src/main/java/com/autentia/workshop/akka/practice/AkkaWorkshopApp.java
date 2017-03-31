@@ -3,9 +3,9 @@ package com.autentia.workshop.akka.practice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.autentia.workshop.akka.practice.consumer.EventConsumer;
 import com.autentia.workshop.akka.practice.executor.FakeMessageExecutor;
-import com.autentia.workshop.messagebroker.EventConsumer;
-import com.autentia.workshop.messagebroker.MessageExecutor;
+import com.autentia.workshop.akka.practice.executor.MessageExecutor;
 
 import akka.actor.ActorSystem;
 

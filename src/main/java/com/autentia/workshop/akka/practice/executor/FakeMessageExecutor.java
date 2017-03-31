@@ -3,8 +3,7 @@ package com.autentia.workshop.akka.practice.executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.autentia.workshop.messagebroker.Event;
-import com.autentia.workshop.messagebroker.MessageExecutor;
+import com.autentia.workshop.akka.practice.model.Event;
 
 import akka.actor.ActorSystem;
 
@@ -21,3 +20,4 @@ public class FakeMessageExecutor extends AbstractMessageExecutor implements Mess
 	}
 
 }
+ 

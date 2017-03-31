@@ -15,10 +15,17 @@
 	</properties>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>com.autentia.workshop</groupId>
-			<artifactId>workshop-libraries</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>akka-workshop-practice-infrastructure</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.autentia.workshop</groupId>
+			<artifactId>akka-workshop-tortilla-service</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 
 		<dependency>
@@ -77,4 +84,5 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
 </project>

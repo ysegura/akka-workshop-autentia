@@ -1,7 +1,6 @@
 package com.autentia.workshop.akka.practice.executor;
 
-import com.autentia.workshop.messagebroker.Event;
-import com.autentia.workshop.messagebroker.MessageExecutor;
+import com.autentia.workshop.akka.practice.model.Event;
 
 import akka.actor.ActorSystem;
 
