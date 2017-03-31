@@ -19,13 +19,13 @@
 		<dependency>
 			<groupId>com.autentia.workshop</groupId>
 			<artifactId>akka-workshop-practice-infrastructure</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.autentia.workshop</groupId>
 			<artifactId>akka-workshop-tortilla-service</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.2</version>
 		</dependency>
 
 		<dependency>
