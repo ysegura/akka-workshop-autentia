@@ -16,7 +16,7 @@ public class FakeMessageExecutor extends AbstractMessageExecutor implements Mess
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	public void execute(Event event) {
-		log.info("Just received!!! Event: "+event.getId());		
+		log.info("Just received!!! Tortilla Type: "+event.getRequest().getTortillaType());		
 	}
 
 }

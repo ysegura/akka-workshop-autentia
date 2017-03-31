@@ -12,6 +12,9 @@ public class AkkaMessageExecutor extends AbstractMessageExecutor implements Mess
 		//TODO Initialization actors
 	}
 
+	/**
+	 * This method will be invoked with every Event consumed from RabbitMQ
+	 */
 	public void execute(Event event) {
 		//TODO Write some logic with actors
 		
