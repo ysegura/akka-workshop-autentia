@@ -11,7 +11,7 @@ public class ShopperActor extends UntypedActor {
 
     private final ShopService shopService;
 
-    private final String CHEFF_ACTOR = "cheffActor";
+    private final String CHEFF_ACTOR = "/user/cheffActor";
 
     public ShopperActor(ShopService shopService) {
         this.shopService = shopService;
@@ -31,8 +31,7 @@ public class ShopperActor extends UntypedActor {
         }
         TortillaOrder order = new TortillaOrder(type,onions, oliveOil, potatoes, eggs, salt);
 
-        this.sender().tell(order, this.getSelf());
-
+        this.getContext().actorSelection(CHEFF_ACTOR).tell(order, this.getSelf());
     }
 
 }

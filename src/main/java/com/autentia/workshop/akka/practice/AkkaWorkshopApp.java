@@ -15,7 +15,7 @@ public class AkkaWorkshopApp {
 	private static final String RABBIT_HOST = "5.56.60.112";
 	private static final int RABBIT_PORT = 5672;
 	
-	private static final String QUEUE_NAME = "workshop_queue";
+	private static final String QUEUE_NAME = "nig_team";
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	

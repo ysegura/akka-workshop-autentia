@@ -2,6 +2,8 @@ package com.autentia.workshop.akka.practice.actor;
 
 import akka.actor.Actor;
 import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import com.autentia.workshop.tortilla.Tortilla;
 import com.autentia.workshop.tortilla.WaiterService;
 
@@ -11,6 +13,7 @@ import com.autentia.workshop.tortilla.WaiterService;
 public class WaiterActor extends UntypedActor {
 
     private final WaiterService waiterService;
+    private final LoggingAdapter loggingAdapter = Logging.getLogger(this);
 
     public WaiterActor (WaiterService waiterService){
 
@@ -19,5 +22,6 @@ public class WaiterActor extends UntypedActor {
     @Override
     public void onReceive(Object o) throws Throwable {
         waiterService.serveTortilla((Tortilla) o);
+        loggingAdapter.info("Tortilla delivered");
     }
 }

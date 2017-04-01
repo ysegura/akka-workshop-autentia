@@ -1,6 +1,5 @@
 package com.autentia.workshop.akka.practice.actor;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.testkit.TestActorRef;
@@ -9,8 +8,6 @@ import com.autentia.workshop.akka.practice.model.TortillaType;
 import com.autentia.workshop.tortilla.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
-import org.mockito.Mockito;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -20,19 +17,19 @@ import static org.mockito.Mockito.when;
 /**
  * Created by blazaro on 1/4/17.
  */
-public class ChefActorTest {
+public class CheffActorTest {
 
     private final ActorSystem actorSystem = ActorSystem.create("testActorSystem");
-    private ChefActor chefActor ;
-    private TestActorRef<ChefActor> testActorRef;
+    private CheffActor cheffActor;
+    private TestActorRef<CheffActor> testActorRef;
     private KitchenService kitchenService= mock (KitchenService.class);
 
     ShopService s;
 
     @Before
     public void setUp(){
-        testActorRef = TestActorRef.create(actorSystem, Props.create(ChefActor.class,kitchenService));
-        chefActor = testActorRef.underlyingActor();
+        testActorRef = TestActorRef.create(actorSystem, Props.create(CheffActor.class,kitchenService));
+        cheffActor = testActorRef.underlyingActor();
     }
 
     @Test
@@ -45,7 +42,7 @@ public class ChefActorTest {
         when(kitchenService.cook(any(HotOliveOil.class), any(SlicedPotatoes.class), any(SlicedOnions.class), any(BeatenEggs.class), any(Salt.class))).thenReturn(tortilla);
 
         //when
-        chefActor.onReceive(tortillaOrder);
+        cheffActor.onReceive(tortillaOrder);
 
 
     }
@@ -54,7 +51,7 @@ public class ChefActorTest {
     public void willCookTortillaConCebollaWithKitchenService() throws Throwable {
 
         //when
-        chefActor.onReceive(TortillaType.CON_CEBOLLA);
+        cheffActor.onReceive(TortillaType.CON_CEBOLLA);
 
         //then
         verify(kitchenService.heatOil(any(OliveOil.class)));
