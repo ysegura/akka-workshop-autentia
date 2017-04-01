@@ -4,6 +4,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.autentia.workshop.akka.practice.model.TortillaType;
 import com.autentia.workshop.tortilla.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,9 +26,9 @@ public class ShopperActorTest {
     private final OliveOil oliveOil = mock(OliveOil.class);
     private final Salt salt = mock(Salt.class);
 
-    private final TortillaConCebolla tortillaConCebolla = mock(TortillaConCebolla.class);
+    private final TortillaType tortillaConCebolla = TortillaType.CON_CEBOLLA;
 
-    private final TortillaSinCebolla tortillaSinCebolla = mock(TortillaSinCebolla.class);
+    private final TortillaType tortillaSinCebolla = TortillaType.SIN_CEBOLLA;
 
     @Before
     public void setUp() {
@@ -50,7 +51,7 @@ public class ShopperActorTest {
     @Test
     public void shouldBuyAllIngredientsButOnionsWhenNoOnionsAsked() throws Throwable {
         // When
-        shopperActor.onReceive(tortillaConCebolla);
+        shopperActor.onReceive(tortillaSinCebolla);
         // Then
         verify(shopService).buyPotatoes();
         verify(shopService).buyEggs();
