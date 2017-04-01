@@ -39,7 +39,10 @@ public class ChefActorTest {
     public void willBuyIngredientsBeforeCooking() throws Throwable {
         //given
         TortillaOrder tortillaOrder = new TortillaOrder(TortillaType.CON_CEBOLLA, mock(Onions.class) , mock(OliveOil.class) , mock(Potatoes.class) , mock(Eggs.class) , mock(Salt.class) );
+        TortillaConCebolla tortilla = mock(TortillaConCebolla.class);
 
+        
+        when(kitchenService.cook(any(HotOliveOil.class), any(SlicedPotatoes.class), any(SlicedOnions.class), any(BeatenEggs.class), any(Salt.class))).thenReturn(tortilla);
 
         //when
         chefActor.onReceive(tortillaOrder);
