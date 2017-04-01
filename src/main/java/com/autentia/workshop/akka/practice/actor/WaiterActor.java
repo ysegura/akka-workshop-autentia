@@ -14,7 +14,6 @@ public class WaiterActor extends UntypedActor {
 
     private final WaiterService waiterService;
     private final LoggingAdapter loggingAdapter = Logging.getLogger(this);
-    private int counter = 0;
 
     public WaiterActor (WaiterService waiterService){
 
@@ -23,7 +22,6 @@ public class WaiterActor extends UntypedActor {
     @Override
     public void onReceive(Object o) throws Throwable {
         waiterService.serveTortilla((Tortilla) o);
-        counter++;
-        loggingAdapter.info("Tortilla delivered: " + counter);
+
     }
 }

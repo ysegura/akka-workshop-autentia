@@ -1,5 +1,6 @@
 package com.autentia.workshop.akka.practice.actor;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.testkit.TestActorRef;
@@ -10,9 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by blazaro on 1/4/17.
@@ -21,44 +20,61 @@ public class CheffActorTest {
 
     private final ActorSystem actorSystem = ActorSystem.create("testActorSystem");
     private CheffActor cheffActor;
-    private TestActorRef<CheffActor> testActorRef;
     private KitchenService kitchenService= mock (KitchenService.class);
+    private TestActorRef waiterActor;
+    private WaiterService waiterService= mock (WaiterService.class);
 
-    ShopService s;
 
     @Before
     public void setUp(){
-        testActorRef = TestActorRef.create(actorSystem, Props.create(CheffActor.class,kitchenService));
+        final TestActorRef<WaiterActor> waiterActor= TestActorRef.create(actorSystem, Props.create(WaiterActor.class,waiterService));
+        final TestActorRef<CheffActor> testActorRef= TestActorRef.create(actorSystem, Props.create(CheffActor.class,kitchenService,waiterActor));
         cheffActor = testActorRef.underlyingActor();
     }
 
-    @Test
-    public void willBuyIngredientsBeforeCooking() throws Throwable {
-        //given
-        TortillaOrder tortillaOrder = new TortillaOrder(TortillaType.CON_CEBOLLA, mock(Onions.class) , mock(OliveOil.class) , mock(Potatoes.class) , mock(Eggs.class) , mock(Salt.class) );
-        TortillaConCebolla tortilla = mock(TortillaConCebolla.class);
 
-        
+
+    @Test
+    public void willCookTortillaConCebollaWithKitchenService() throws Throwable {
+
+        //given
+        final TortillaOrder tortillaOrder=mock(TortillaOrder.class,RETURNS_DEEP_STUBS);
+        when(tortillaOrder.getTortillaType()).thenReturn(TortillaType.CON_CEBOLLA);
+        final TortillaConCebolla tortilla=mock(TortillaConCebolla.class);
         when(kitchenService.cook(any(HotOliveOil.class), any(SlicedPotatoes.class), any(SlicedOnions.class), any(BeatenEggs.class), any(Salt.class))).thenReturn(tortilla);
 
         //when
         cheffActor.onReceive(tortillaOrder);
 
+        //then
+        verifyCommonCookingActions();
+        verify(kitchenService).slice(any(Onions.class));
+        verify(kitchenService).cook(any(HotOliveOil.class), any(SlicedPotatoes.class), any(SlicedOnions.class), any(BeatenEggs.class), any(Salt.class));
+
 
     }
 
+    private void verifyCommonCookingActions() {
+        verify(kitchenService).heatOil(any(OliveOil.class));
+        verify(kitchenService).beat(any(Eggs.class));
+        verify(kitchenService).slice(any(Potatoes.class));
+    }
+
     @Test
-    public void willCookTortillaConCebollaWithKitchenService() throws Throwable {
+    public void willCookTortillaSinCebollaWithKitchenService() throws Throwable {
+
+        //given
+        final TortillaOrder tortillaOrder=mock(TortillaOrder.class,RETURNS_DEEP_STUBS);
+        when(tortillaOrder.getTortillaType()).thenReturn(TortillaType.SIN_CEBOLLA);
+        final TortillaSinCebolla tortilla=mock(TortillaSinCebolla.class);
+        when(kitchenService.cook(any(HotOliveOil.class), any(SlicedPotatoes.class), any(BeatenEggs.class), any(Salt.class))).thenReturn(tortilla);
 
         //when
-        cheffActor.onReceive(TortillaType.CON_CEBOLLA);
+        cheffActor.onReceive(tortillaOrder);
 
         //then
-        verify(kitchenService.heatOil(any(OliveOil.class)));
-        verify(kitchenService.beat(any(Eggs.class)));
-        verify(kitchenService.slice(any(Onions.class)));
-        verify(kitchenService.slice(any(Potatoes.class)));
-        verify(kitchenService.cook(any(HotOliveOil.class), any(SlicedPotatoes.class), any(SlicedOnions.class), any(BeatenEggs.class), any(Salt.class)));
+        verifyCommonCookingActions();
+        verify(kitchenService).cook(any(HotOliveOil.class), any(SlicedPotatoes.class), any(BeatenEggs.class), any(Salt.class));
 
 
     }

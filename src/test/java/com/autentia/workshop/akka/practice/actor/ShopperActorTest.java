@@ -19,6 +19,11 @@ public class ShopperActorTest {
 
     private ShopperActor shopperActor;
 
+    private CheffActor cheffActor;
+    private KitchenService kitchenService= mock (KitchenService.class);
+    private TestActorRef waiterActor;
+    private WaiterService waiterService= mock (WaiterService.class);
+
     private ShopService shopService = mock(ShopService.class);
     private final Onions onions = mock(Onions.class);
     private final Potatoes potatoes = mock(Potatoes.class);
@@ -32,7 +37,9 @@ public class ShopperActorTest {
 
     @Before
     public void setUp() {
-        final TestActorRef<ShopperActor> testActorRef = TestActorRef.create(actorSystem, Props.create(ShopperActor.class, shopService));
+        final TestActorRef<WaiterActor> waiterActor= TestActorRef.create(actorSystem, Props.create(WaiterActor.class,waiterService));
+        final TestActorRef<CheffActor> cheffActorRef= TestActorRef.create(actorSystem, Props.create(CheffActor.class,kitchenService,waiterActor));
+        final TestActorRef<ShopperActor> testActorRef = TestActorRef.create(actorSystem, Props.create(ShopperActor.class, shopService,cheffActorRef));
         shopperActor = testActorRef.underlyingActor();
     }
 
@@ -58,5 +65,7 @@ public class ShopperActorTest {
         verify(shopService).buyOliveOil();
         verify(shopService).buySalt();
     }
+
+
 
 }

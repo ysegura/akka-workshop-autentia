@@ -25,13 +25,17 @@ public class AkkaMessageExecutor extends AbstractMessageExecutor implements Mess
 	private final String WAITER_ACTOR = "waiterActor";
 
 	private final ActorRef shopperActor;
+	private final ActorRef cheffActor;
+	private final ActorRef waiterActor;
 	
 	public AkkaMessageExecutor(final ActorSystem actorSystem) {
 		super(actorSystem);
 		
-		shopperActor = actorSystem.actorOf(Props.create(ShopperActor.class, new ShopService()), SHOPPER_ACTOR);
-		actorSystem.actorOf(Props.create(CheffActor.class, new KitchenService()), CHEFF_ACTOR);
-		actorSystem.actorOf(Props.create(WaiterActor.class, new WaiterService(HOST_NAME, PORT_NUMBER, EXCHANGE)), WAITER_ACTOR);
+
+		waiterActor=actorSystem.actorOf(Props.create(WaiterActor.class, new WaiterService(HOST_NAME, PORT_NUMBER, EXCHANGE)), WAITER_ACTOR);
+
+		cheffActor=actorSystem.actorOf(Props.create(CheffActor.class, new KitchenService(),waiterActor), CHEFF_ACTOR);
+		shopperActor = actorSystem.actorOf(Props.create(ShopperActor.class, new ShopService(),cheffActor), SHOPPER_ACTOR);
 	}
 
 	/**

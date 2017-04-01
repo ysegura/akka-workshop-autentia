@@ -1,5 +1,6 @@
 package com.autentia.workshop.akka.practice.actor;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import com.autentia.workshop.akka.practice.model.TortillaOrder;
 import com.autentia.workshop.akka.practice.model.TortillaType;
@@ -11,10 +12,11 @@ public class ShopperActor extends UntypedActor {
 
     private final ShopService shopService;
 
-    private final String CHEFF_ACTOR = "/user/cheffActor";
+    private final ActorRef cheffActor;
 
-    public ShopperActor(ShopService shopService) {
+    public ShopperActor(ShopService shopService,ActorRef cheffActor) {
         this.shopService = shopService;
+        this.cheffActor = cheffActor;
     }
 
     @Override
@@ -31,7 +33,7 @@ public class ShopperActor extends UntypedActor {
         }
         TortillaOrder order = new TortillaOrder(type,onions, oliveOil, potatoes, eggs, salt);
 
-        this.getContext().actorSelection(CHEFF_ACTOR).tell(order, this.getSelf());
+        cheffActor.tell(order, this.getSelf());
     }
 
 }
