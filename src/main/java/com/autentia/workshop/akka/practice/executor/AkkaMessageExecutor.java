@@ -8,6 +8,9 @@ import com.autentia.workshop.akka.practice.actor.ChefActor;
 import com.autentia.workshop.akka.practice.model.Event;
 
 import akka.actor.ActorSystem;
+import com.autentia.workshop.tortilla.KitchenService;
+import com.autentia.workshop.tortilla.ShopService;
+import com.autentia.workshop.tortilla.WaiterService;
 
 public class AkkaMessageExecutor extends AbstractMessageExecutor implements MessageExecutor{
 	
@@ -18,9 +21,9 @@ public class AkkaMessageExecutor extends AbstractMessageExecutor implements Mess
 	public AkkaMessageExecutor(final ActorSystem actorSystem) {
 		super(actorSystem);
 		
-		actorSystem.actorOf(Props.create(ShopperActor.class), SHOPPER_ACTOR);
-		actorSystem.actorOf(Props.create(ChefActor.class), CHEFF_ACTOR);
-		actorSystem.actorOf(Props.create(WaiterActor.class), WAITER_ACTOR);
+		actorSystem.actorOf(Props.create(ShopperActor.class, new ShopService()), SHOPPER_ACTOR);
+		actorSystem.actorOf(Props.create(ChefActor.class, new KitchenService()), CHEFF_ACTOR);
+		actorSystem.actorOf(Props.create(WaiterActor.class, new WaiterService("5.56.60.112", 5762,"nig_team_exchange")), WAITER_ACTOR);
 	}
 
 	/**

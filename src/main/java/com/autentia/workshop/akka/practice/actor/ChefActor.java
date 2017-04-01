@@ -22,7 +22,7 @@ public class ChefActor extends UntypedActor{
 
     private final KitchenService kitchenService;
 
-    public ChefActor(final KitchenService kitchenService, final ActorRef shopActorRef){
+    public ChefActor(final KitchenService kitchenService){
         this.kitchenService = kitchenService;
     }
 
