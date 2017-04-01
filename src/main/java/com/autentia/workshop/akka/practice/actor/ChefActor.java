@@ -22,7 +22,7 @@ public class ChefActor extends UntypedActor{
 
     private final KitchenService kitchenService;
 
-    public ChefActor(final KitchenService kitchenService, final ActorRef shopActorRef){
+    public ChefActor(final KitchenService kitchenService){
         this.kitchenService = kitchenService;
     }
 
@@ -35,7 +35,13 @@ public class ChefActor extends UntypedActor{
         final BeatenEggs beatenEggs=kitchenService.beat(tortillaOrder.getEggs());
         final SlicedOnions slicedOnions=kitchenService.slice(tortillaOrder.getOnions());
         final SlicedPotatoes slicedPotatoes=kitchenService.slice(tortillaOrder.getPotatoes());
-        
+
+        final Tortilla tortilla=kitchenService.cook(hotOliveOil,slicedPotatoes,slicedOnions,beatenEggs,tortillaOrder.getSalt());
+        this.getContext().actorFor("waiterActor").tell(tortilla,getSelf());
+
+        //this.getContext().actorFor("waiterActor").tell("",getSelf());
+
+
 
     }
 }
