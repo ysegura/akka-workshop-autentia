@@ -25,4 +25,28 @@ public class TortillaOrder implements Serializable{
         this.eggs = eggs;
         this.salt = salt;
     }
+
+    public TortillaType getTortillaType() {
+        return tortillaType;
+    }
+
+    public Onions getOnions() {
+        return onions;
+    }
+
+    public OliveOil getOliveOil() {
+        return oliveOil;
+    }
+
+    public Potatoes getPotatoes() {
+        return potatoes;
+    }
+
+    public Eggs getEggs() {
+        return eggs;
+    }
+
+    public Salt getSalt() {
+        return salt;
+    }
 }
