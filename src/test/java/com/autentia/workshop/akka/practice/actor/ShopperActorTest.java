@@ -47,6 +47,7 @@ public class ShopperActorTest {
     public void shouldBuyAllIngredientsWhenOnionsAsked() throws Throwable {
         // When
         shopperActor.onReceive(tortillaConCebolla);
+
         // Then
         verify(shopService).buyOnions();
         verify(shopService).buyPotatoes();
