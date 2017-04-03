@@ -30,10 +30,8 @@ public class AkkaMessageExecutor extends AbstractMessageExecutor implements Mess
 	
 	public AkkaMessageExecutor(final ActorSystem actorSystem) {
 		super(actorSystem);
-		
 
 		waiterActor=actorSystem.actorOf(Props.create(WaiterActor.class, new WaiterService(HOST_NAME, PORT_NUMBER, EXCHANGE)), WAITER_ACTOR);
-
 		cheffActor=actorSystem.actorOf(Props.create(CheffActor.class, new KitchenService(),waiterActor), CHEFF_ACTOR);
 		shopperActor = actorSystem.actorOf(Props.create(ShopperActor.class, new ShopService(),cheffActor), SHOPPER_ACTOR);
 	}
