@@ -1,17 +1,9 @@
 package com.autentia.workshop.akka.practice.model;
 
 
-import static akka.dispatch.Futures.future;
-import static akka.dispatch.Futures.sequence;
-
-import akka.dispatch.Mapper;
-import akka.dispatch.OnSuccess;
 import com.autentia.workshop.tortilla.*;
-import scala.concurrent.ExecutionContextExecutor;
-import scala.concurrent.Future;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -21,8 +13,6 @@ import java.util.function.Function;
 public class PreparedIngresientsBuilder {
     private final TortillaOrder tortillaOrder;
     private final KitchenService kitchenService;
-    private final ExecutionContextExecutor executionContextExecutor;
-    private final List<Future<Object>> preparedIngredients = new ArrayList<>();
     private HotOliveOil hotOliveOil;
     private BeatenEggs beatenEggs;
     private SlicedPotatoes slicedPotatoes;
@@ -30,45 +20,28 @@ public class PreparedIngresientsBuilder {
     private Salt salt;
 
 
-    public PreparedIngresientsBuilder(TortillaOrder tortillaOrder, KitchenService kitchenService, ExecutionContextExecutor executionContextExecutor) {
+    public PreparedIngresientsBuilder(TortillaOrder tortillaOrder, KitchenService kitchenService) {
         this.tortillaOrder = tortillaOrder;
         this.kitchenService = kitchenService;
-        this.executionContextExecutor = executionContextExecutor;
     }
 
     private PreparedIngresientsBuilder withHotOliveOil() {
-        final Future<Object> future = future(() -> {
-            return kitchenService.heatOil(tortillaOrder.getOliveOil());
-        }, executionContextExecutor);
-        preparedIngredients.add(future);
-        future.onSuccess(success(hotOliveOil -> this.hotOliveOil = (HotOliveOil) hotOliveOil), executionContextExecutor);
+        this.hotOliveOil = kitchenService.heatOil(tortillaOrder.getOliveOil());
         return this;
     }
 
     private PreparedIngresientsBuilder withBeatenEggs() {
-        final Future<Object> future = future(() -> {
-            return kitchenService.beat(tortillaOrder.getEggs());
-        }, executionContextExecutor);
-        preparedIngredients.add(future);
-        future.onSuccess(success(beatenEggs -> this.beatenEggs = (BeatenEggs) beatenEggs), executionContextExecutor);
+        this.beatenEggs = kitchenService.beat(tortillaOrder.getEggs());
         return this;
     }
 
     private PreparedIngresientsBuilder withSlicedPotatoes() {
-        final Future<Object> future = future(() -> {
-            return kitchenService.slice(tortillaOrder.getPotatoes());
-        }, executionContextExecutor);
-        preparedIngredients.add(future);
-        future.onSuccess(success(slicedPotatoes -> this.slicedPotatoes = (SlicedPotatoes) slicedPotatoes), executionContextExecutor);
+        this.slicedPotatoes = kitchenService.slice(tortillaOrder.getPotatoes());
         return this;
     }
 
     private PreparedIngresientsBuilder withSlicedOnions() {
-        final Future<Object> future = future(() -> {
-            return kitchenService.slice(tortillaOrder.getOnions());
-        }, executionContextExecutor);
-        preparedIngredients.add(future);
-        future.onSuccess(success(slicedOnions -> this.slicedOnions = (SlicedOnions) slicedOnions), executionContextExecutor);
+        this.slicedOnions = kitchenService.slice(tortillaOrder.getOnions());
         return this;
     }
 
@@ -77,19 +50,9 @@ public class PreparedIngresientsBuilder {
         return this;
     }
 
-    private OnSuccess<Object> success(final Consumer<Object> consumer) {
-        return new OnSuccess<Object>() {
-            @Override
-            public void onSuccess(Object preparedIngredient) throws Throwable {
-                consumer.accept(preparedIngredient);
-            }
 
 
-        };
-    }
-
-
-    public Future<PreparedIngredients> build() {
+    public PreparedIngredients build() {
 
         this.withBeatenEggs().withHotOliveOil()
                 .withSalt().withSlicedPotatoes();
@@ -98,22 +61,9 @@ public class PreparedIngresientsBuilder {
         }
 
 
-        Future<Iterable<Object>> futuresSequence= sequence(preparedIngredients, executionContextExecutor);
-
-        return futuresSequence.map(
-                map(object -> {
-                    return new PreparedIngredients(this.tortillaOrder.getTortillaType(),this.hotOliveOil,this.beatenEggs,this.slicedPotatoes,this.salt,this.slicedOnions);
-                }), executionContextExecutor);
+        return  new PreparedIngredients(this.tortillaOrder.getTortillaType(),this.hotOliveOil,this.beatenEggs,this.slicedPotatoes,this.salt,this.slicedOnions);
     }
 
-    private Mapper<Iterable<Object>, PreparedIngredients> map(final Function<Iterable<Object>, PreparedIngredients> mapFunction) {
-        return new Mapper<Iterable<Object>, PreparedIngredients>() {
-            @Override
-            public PreparedIngredients apply(Iterable<Object> parameter) {
-                return mapFunction.apply(parameter);
-            }
-        };
-    }
 
 
 }

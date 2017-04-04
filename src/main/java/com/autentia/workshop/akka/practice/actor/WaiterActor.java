@@ -31,11 +31,7 @@ public class WaiterActor extends UntypedActor {
         elapsedTime.start();
 
 
-        future(() -> {
-             waiterService.serveTortilla((Tortilla) o);
-             return 0;
-        }, this.getContext().dispatcher())
-        ;
+        waiterService.serveTortilla((Tortilla) o);
 
         elapsedTime.stop();
         logger.info("Waiter finished in {}ms.",elapsedTime.getNanoTime());
