@@ -5,6 +5,7 @@ import akka.dispatch.Mapper;
 import akka.dispatch.OnSuccess;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import com.autentia.workshop.akka.practice.model.PreparedIngredients;
 import com.autentia.workshop.akka.practice.model.PreparedIngresientsBuilder;
 import com.autentia.workshop.akka.practice.model.TortillaOrder;
 import com.autentia.workshop.akka.practice.model.TortillaType;
@@ -62,55 +63,31 @@ public class CheffActor extends UntypedActor {
     private Future<Tortilla> cook(TortillaOrder tortillaOrder) {
 
 
-        final PreparedIngresientsBuilder preparedIngresientsBuilder = new PreparedIngresientsBuilder();
-
-        final List<Future<Object>> futures = new ArrayList<Future<Object>>();
-
-        prepareIngredients(tortillaOrder, preparedIngresientsBuilder, futures);
+        final PreparedIngresientsBuilder preparedIngresientsBuilder = new PreparedIngresientsBuilder(tortillaOrder,kitchenService,executionContextExecutor);
 
 
-        return doCook(tortillaOrder, preparedIngresientsBuilder, futures);
+        return doCook(preparedIngresientsBuilder);
     }
 
-    private Future<Tortilla> doCook(TortillaOrder tortillaOrder, PreparedIngresientsBuilder preparedIngresientsBuilder, List<Future<Object>> futures) {
-
-        final Future<Iterable<Object>> futuresSequence = sequence(futures, executionContextExecutor);
+    private Future<Tortilla> doCook(PreparedIngresientsBuilder preparedIngredientsBuilder) {
 
 
-        return futuresSequence.flatMap(
-                map(object -> {
-                    if (TortillaType.CON_CEBOLLA.equals(tortillaOrder.getTortillaType())) {
+        final Future<PreparedIngredients> preparedIngredientsFuture = preparedIngredientsBuilder.build();
+
+
+        return preparedIngredientsFuture.flatMap(
+                map(preparedIngredients -> {
+                    if (TortillaType.CON_CEBOLLA.equals(preparedIngredients.getTortillaType())) {
                         return
 
-                                future(()-> kitchenService.cook(preparedIngresientsBuilder.getHotOliveOil(), preparedIngresientsBuilder.getSlicedPotatoes(), preparedIngresientsBuilder.getSlicedOnions(), preparedIngresientsBuilder.getBeatenEggs(),
-                                        preparedIngresientsBuilder.getSalt()),executionContextExecutor);
+                                future(()-> kitchenService.cook(preparedIngredients.getHotOliveOil(), preparedIngredients.getSlicedPotatoes(), preparedIngredients.getSlicedOnions(), preparedIngredients.getBeatenEggs(),
+                                        preparedIngredients.getSalt()),executionContextExecutor);
                     } else {
-                        return future(()->kitchenService.cook(preparedIngresientsBuilder.getHotOliveOil(), preparedIngresientsBuilder.getSlicedPotatoes(), preparedIngresientsBuilder.getBeatenEggs(),
-                                preparedIngresientsBuilder.getSalt()),executionContextExecutor);
+                        return future(()->kitchenService.cook(preparedIngredients.getHotOliveOil(), preparedIngredients.getSlicedPotatoes(), preparedIngredients.getBeatenEggs(),
+                                preparedIngredients.getSalt()),executionContextExecutor);
                     }
                 }), executionContextExecutor);
 
-    }
-
-    private void prepareIngredients(TortillaOrder tortillaOrder, PreparedIngresientsBuilder preparedIngresientsBuilder, List<Future<Object>> futures) {
-
-        futures.add(future(() -> {
-            return preparedIngresientsBuilder.withHotOliveOil(kitchenService.heatOil(tortillaOrder.getOliveOil()));
-        }, executionContextExecutor));
-        futures.add(future(() -> {
-            return preparedIngresientsBuilder.withBeatenEggs(kitchenService.beat(tortillaOrder.getEggs()));
-        }, executionContextExecutor));
-        futures.add(future(() -> {
-            return preparedIngresientsBuilder.withSlicedPotatoes(kitchenService.slice(tortillaOrder.getPotatoes()));
-        }, executionContextExecutor));
-        futures.add(future(() -> {
-            return preparedIngresientsBuilder.withSalt(tortillaOrder.getSalt());
-        }, executionContextExecutor));
-        if (TortillaType.CON_CEBOLLA.equals(tortillaOrder.getTortillaType())) {
-            futures.add(future(() -> {
-                return preparedIngresientsBuilder.withSlicedOnions(kitchenService.slice(tortillaOrder.getOnions()));
-            }, executionContextExecutor));
-        }
     }
 
     private OnSuccess<Tortilla> success(final Consumer<Tortilla> consumer) {
@@ -124,10 +101,10 @@ public class CheffActor extends UntypedActor {
         };
     }
 
-    private Mapper<Iterable<Object>, Future<Tortilla>> map(final Function<Iterable<Object>, Future<Tortilla>> mapFunction) {
-        return new Mapper<Iterable<Object>, Future<Tortilla>>() {
+    private Mapper<PreparedIngredients, Future<Tortilla>> map(final Function<PreparedIngredients, Future<Tortilla>> mapFunction) {
+        return new Mapper<PreparedIngredients, Future<Tortilla>>() {
             @Override
-            public Future<Tortilla> apply(Iterable<Object> parameter) {
+            public Future<Tortilla> apply(PreparedIngredients parameter) {
                 return mapFunction.apply(parameter);
             }
         };
