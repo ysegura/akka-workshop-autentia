@@ -2,6 +2,9 @@ package com.autentia.workshop.akka.practice.executor;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.routing.BalancingPool;
+import akka.routing.DefaultResizer;
+import akka.routing.RoundRobinPool;
 import com.autentia.workshop.akka.practice.actor.ShopperActor;
 import com.autentia.workshop.akka.practice.actor.WaiterActor;
 import com.autentia.workshop.akka.practice.actor.CheffActor;
@@ -30,12 +33,12 @@ public class AkkaMessageExecutor extends AbstractMessageExecutor implements Mess
 	
 	public AkkaMessageExecutor(final ActorSystem actorSystem) {
 		super(actorSystem);
-		
 
-		waiterActor=actorSystem.actorOf(Props.create(WaiterActor.class, new WaiterService(HOST_NAME, PORT_NUMBER, EXCHANGE)), WAITER_ACTOR);
 
-		cheffActor=actorSystem.actorOf(Props.create(CheffActor.class, new KitchenService(),waiterActor), CHEFF_ACTOR);
-		shopperActor = actorSystem.actorOf(Props.create(ShopperActor.class, new ShopService(),cheffActor), SHOPPER_ACTOR);
+		waiterActor=actorSystem.actorOf(new BalancingPool(30).props(Props.create(WaiterActor.class, new WaiterService(HOST_NAME, PORT_NUMBER, EXCHANGE))), WAITER_ACTOR);
+
+		cheffActor=actorSystem.actorOf(new BalancingPool(30).props(Props.create(CheffActor.class, new KitchenService(),waiterActor)), CHEFF_ACTOR);
+		shopperActor = actorSystem.actorOf(new BalancingPool(30).props(Props.create(ShopperActor.class, new ShopService(),cheffActor)), SHOPPER_ACTOR);
 	}
 
 	/**
