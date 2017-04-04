@@ -3,12 +3,15 @@ package com.autentia.workshop.akka.practice.actor;
 import akka.actor.ActorRef;
 import akka.dispatch.Mapper;
 import akka.dispatch.OnSuccess;
-import com.autentia.workshop.akka.practice.model.TortillaCooker;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
+import com.autentia.workshop.akka.practice.model.PreparedIngresientsBuilder;
 import com.autentia.workshop.akka.practice.model.TortillaOrder;
 import com.autentia.workshop.akka.practice.model.TortillaType;
 import com.autentia.workshop.tortilla.*;
 
 import akka.actor.UntypedActor;
+import org.apache.commons.lang3.time.StopWatch;
 import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.Future;
 
@@ -25,79 +28,88 @@ import static akka.dispatch.Futures.sequence;
  */
 public class CheffActor extends UntypedActor {
 
+    private final LoggingAdapter logger = Logging.getLogger(this);
+
     private final KitchenService kitchenService;
     private final ActorRef waiterActor;
+    private final ExecutionContextExecutor executionContextExecutor;
 
     public CheffActor(final KitchenService kitchenService, final ActorRef waiterActor) {
         this.kitchenService = kitchenService;
         this.waiterActor = waiterActor;
+        this.executionContextExecutor = getContext().dispatcher();
     }
 
     @Override
     public void onReceive(Object msg) throws Throwable {
-        final TortillaOrder tortillaOrder = (TortillaOrder) msg;
 
+        final StopWatch elapsedTime = new StopWatch();
+        elapsedTime.start();
+
+        final TortillaOrder tortillaOrder = (TortillaOrder) msg;
 
 
         final Future<Tortilla> tortillaFuture = cook(tortillaOrder);
 
 
+        tortillaFuture.onSuccess(success(tortilla -> waiterActor.tell(tortilla, getSelf())), executionContextExecutor);
 
-        tortillaFuture.onSuccess(success(tortilla -> waiterActor.tell(tortilla,getSelf())),getExecutionContext());
-
-
+        elapsedTime.stop();
+        logger.info("Cook finished in {}ms.", elapsedTime.getNanoTime());
 
     }
 
     private Future<Tortilla> cook(TortillaOrder tortillaOrder) {
 
 
-
-        final TortillaCooker tortillaCooker = new TortillaCooker();
+        final PreparedIngresientsBuilder preparedIngresientsBuilder = new PreparedIngresientsBuilder();
 
         final List<Future<Object>> futures = new ArrayList<Future<Object>>();
 
-        prepareIngredients(tortillaOrder, tortillaCooker, futures);
+        prepareIngredients(tortillaOrder, preparedIngresientsBuilder, futures);
 
 
-        return doCook(tortillaOrder,  tortillaCooker, futures);
+        return doCook(tortillaOrder, preparedIngresientsBuilder, futures);
     }
 
-    private Future<Tortilla> doCook(TortillaOrder tortillaOrder,  TortillaCooker tortillaCooker, List<Future<Object>> futures) {
-        final ExecutionContextExecutor executionContext = getExecutionContext();
+    private Future<Tortilla> doCook(TortillaOrder tortillaOrder, PreparedIngresientsBuilder preparedIngresientsBuilder, List<Future<Object>> futures) {
 
-        final Future<Iterable<Object>> futuresSequence = sequence(futures, executionContext);
+        final Future<Iterable<Object>> futuresSequence = sequence(futures, executionContextExecutor);
 
-        return futuresSequence.map(map(object -> {
-            if (TortillaType.CON_CEBOLLA.equals(tortillaOrder.getTortillaType())) {
-                return kitchenService.cook(tortillaCooker.getHotOliveOil(), tortillaCooker.getSlicedPotatoes(), tortillaCooker.getSlicedOnions(), tortillaCooker.getBeatenEggs(),
-                        tortillaCooker.getSalt());
-            } else {
-                return kitchenService.cook(tortillaCooker.getHotOliveOil(), tortillaCooker.getSlicedPotatoes(), tortillaCooker.getBeatenEggs(),
-                        tortillaCooker.getSalt());
-            }
-        }), executionContext);
+
+        return futuresSequence.flatMap(
+                map(object -> {
+                    if (TortillaType.CON_CEBOLLA.equals(tortillaOrder.getTortillaType())) {
+                        return
+
+                                future(()-> kitchenService.cook(preparedIngresientsBuilder.getHotOliveOil(), preparedIngresientsBuilder.getSlicedPotatoes(), preparedIngresientsBuilder.getSlicedOnions(), preparedIngresientsBuilder.getBeatenEggs(),
+                                        preparedIngresientsBuilder.getSalt()),executionContextExecutor);
+                    } else {
+                        return future(()->kitchenService.cook(preparedIngresientsBuilder.getHotOliveOil(), preparedIngresientsBuilder.getSlicedPotatoes(), preparedIngresientsBuilder.getBeatenEggs(),
+                                preparedIngresientsBuilder.getSalt()),executionContextExecutor);
+                    }
+                }), executionContextExecutor);
+
     }
 
-    private void prepareIngredients(TortillaOrder tortillaOrder,  TortillaCooker tortillaCooker, List<Future<Object>> futures) {
-        final ExecutionContextExecutor executionContext = getExecutionContext();
+    private void prepareIngredients(TortillaOrder tortillaOrder, PreparedIngresientsBuilder preparedIngresientsBuilder, List<Future<Object>> futures) {
 
         futures.add(future(() -> {
-            return tortillaCooker.withHotOliveOil(kitchenService.heatOil(tortillaOrder.getOliveOil()));
-        }, executionContext));
+            return preparedIngresientsBuilder.withHotOliveOil(kitchenService.heatOil(tortillaOrder.getOliveOil()));
+        }, executionContextExecutor));
         futures.add(future(() -> {
-            return tortillaCooker.withBeatenEggs(kitchenService.beat(tortillaOrder.getEggs()));
-        }, executionContext));
+            return preparedIngresientsBuilder.withBeatenEggs(kitchenService.beat(tortillaOrder.getEggs()));
+        }, executionContextExecutor));
         futures.add(future(() -> {
-            return tortillaCooker.withSlicedPotatoes(kitchenService.slice(tortillaOrder.getPotatoes()));
-        }, executionContext));
+            return preparedIngresientsBuilder.withSlicedPotatoes(kitchenService.slice(tortillaOrder.getPotatoes()));
+        }, executionContextExecutor));
         futures.add(future(() -> {
-            return tortillaCooker.withSalt(tortillaOrder.getSalt());
-        }, executionContext));
+            return preparedIngresientsBuilder.withSalt(tortillaOrder.getSalt());
+        }, executionContextExecutor));
         if (TortillaType.CON_CEBOLLA.equals(tortillaOrder.getTortillaType())) {
             futures.add(future(() -> {
-                return tortillaCooker.withSlicedOnions(kitchenService.slice(tortillaOrder.getOnions()));
-            }, executionContext));
+                return preparedIngresientsBuilder.withSlicedOnions(kitchenService.slice(tortillaOrder.getOnions()));
+            }, executionContextExecutor));
         }
     }
 
@@ -112,17 +124,14 @@ public class CheffActor extends UntypedActor {
         };
     }
 
-    private Mapper<Iterable<Object>, Tortilla> map(final Function<Iterable<Object>, Tortilla> mapFunction) {
-        return new Mapper<Iterable<Object>, Tortilla>() {
+    private Mapper<Iterable<Object>, Future<Tortilla>> map(final Function<Iterable<Object>, Future<Tortilla>> mapFunction) {
+        return new Mapper<Iterable<Object>, Future<Tortilla>>() {
             @Override
-            public Tortilla apply(Iterable<Object> parameter) {
+            public Future<Tortilla> apply(Iterable<Object> parameter) {
                 return mapFunction.apply(parameter);
             }
         };
     }
 
 
-    private ExecutionContextExecutor getExecutionContext() {
-        return getContext().dispatcher();
-    }
 }

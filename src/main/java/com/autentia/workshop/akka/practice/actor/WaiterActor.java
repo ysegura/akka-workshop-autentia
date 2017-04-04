@@ -6,11 +6,16 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import com.autentia.workshop.tortilla.Tortilla;
 import com.autentia.workshop.tortilla.WaiterService;
+import org.apache.commons.lang3.time.StopWatch;
+
+import static akka.dispatch.Futures.future;
 
 /**
  * Created by blazaro on 1/4/17.
  */
 public class WaiterActor extends UntypedActor {
+
+    private final LoggingAdapter logger = Logging.getLogger(this);
 
     private final WaiterService waiterService;
     private final LoggingAdapter loggingAdapter = Logging.getLogger(this);
@@ -21,7 +26,19 @@ public class WaiterActor extends UntypedActor {
     }
     @Override
     public void onReceive(Object o) throws Throwable {
-        waiterService.serveTortilla((Tortilla) o);
+
+        final StopWatch elapsedTime = new StopWatch();
+        elapsedTime.start();
+
+
+        future(() -> {
+             waiterService.serveTortilla((Tortilla) o);
+             return 0;
+        }, this.getContext().dispatcher())
+        ;
+
+        elapsedTime.stop();
+        logger.info("Waiter finished in {}ms.",elapsedTime.getNanoTime());
 
     }
 }

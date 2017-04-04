@@ -23,7 +23,7 @@ package com.autentia.workshop.akka.practice.producer;
 public class MessageProducer {
     private static final String HOST_NAME = "5.56.60.112";
     private static final int PORT_NUMBER = 5672;
-    private static final String EXCHANGE_NAME = "workshop_exchange";
+    private static final String EXCHANGE_NAME = "nig_team_in_exchange";
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public MessageProducer() {
@@ -55,9 +55,9 @@ public class MessageProducer {
 
                 Request request = new Request(String.valueOf(customerId.getAndIncrement()), String.valueOf(requestId.getAndIncrement()), tortillaType);
                 Event event = new Event(UUID.randomUUID().toString(), request);
-                channel.basicPublish("workshop_exchange", "", (AMQP.BasicProperties)null, SerializationUtils.serialize(event));
+                channel.basicPublish(EXCHANGE_NAME, "", (AMQP.BasicProperties)null, SerializationUtils.serialize(event));
                 this.log.info("------------ Publish " + tortillaType);
-                //Thread.sleep(500L);
+                //Thread.sleep(100L);
             }
         } catch (TimeoutException | KeyManagementException | NoSuchAlgorithmException | URISyntaxException | IOException var11) {
             throw new RuntimeException(var11);

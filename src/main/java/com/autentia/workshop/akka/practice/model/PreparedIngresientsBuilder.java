@@ -5,34 +5,34 @@ import com.autentia.workshop.tortilla.*;
 /**
  * Created by blazaro on 2/4/17.
  */
-public class TortillaCooker {
+public class PreparedIngresientsBuilder {
     private HotOliveOil hotOliveOil;
     private BeatenEggs beatenEggs;
     private SlicedPotatoes slicedPotatoes;
     private SlicedOnions slicedOnions;
     private Salt salt;
 
-    public TortillaCooker withHotOliveOil(HotOliveOil hotOliveOil) {
+    public PreparedIngresientsBuilder withHotOliveOil(HotOliveOil hotOliveOil) {
         this.hotOliveOil = hotOliveOil;
         return this;
     }
 
-    public TortillaCooker withBeatenEggs(BeatenEggs beat) {
+    public PreparedIngresientsBuilder withBeatenEggs(BeatenEggs beat) {
         beatenEggs = beat;
         return this;
     }
 
-    public TortillaCooker withSlicedPotatoes(SlicedPotatoes slicedPotatoes) {
+    public PreparedIngresientsBuilder withSlicedPotatoes(SlicedPotatoes slicedPotatoes) {
         this.slicedPotatoes = slicedPotatoes;
         return this;
     }
 
-    public TortillaCooker withSlicedOnions(SlicedOnions slicedOnions) {
+    public PreparedIngresientsBuilder withSlicedOnions(SlicedOnions slicedOnions) {
         this.slicedOnions = slicedOnions;
         return this;
     }
 
-    public TortillaCooker withSalt(Salt salt) {
+    public PreparedIngresientsBuilder withSalt(Salt salt) {
         this.salt = salt;
         return this;
     }
